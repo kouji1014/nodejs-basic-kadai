@@ -15,7 +15,7 @@ app.post('/todos', async (req, res) => {
     const { title, priority } = req.body;
     try {
         const result = await executeQuery(
-            'INSERT INTO todos (title,priority) VALUES (?,?);', [title, priority]
+            'INSERT INTO todos (title,priority,status) VALUES (?,?);', [title, priority,status]
         );
         res.status(201).json({ id: result.insertId, title, priority });
     } catch (err) {
