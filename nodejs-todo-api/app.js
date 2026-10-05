@@ -12,12 +12,12 @@ function handleServerError(res, error, message = 'サーバーエラー') {
 }
 
 app.post('/todos', async (req, res) => {
-    const { title, priority } = req.body;
+    const { title, priority = '中', status = '未着手' } = req.body;
     try {
         const result = await executeQuery(
-            'INSERT INTO todos (title,priority,status) VALUES (?,?);', [title, priority,status]
+            'INSERT INTO todos (title,priority,status) VALUES (?,?,?);', [title, priority, status]
         );
-        res.status(201).json({ id: result.insertId, title, priority });
+        res.status(201).json({ id: result.insertId, title, priority, status });
     } catch (err) {
         handleServerError(res, err, 'ユーザー追加に失敗しました');
     }
@@ -33,7 +33,7 @@ app.get('/todos', async (req, res) => {
 });
 
 app.put('/todos/:id', async (req, res) => {
-    const { title, priority, status } = req.body;
+    const { title, priority, status='未着手' } = req.body;
     try {
         const result = await executeQuery(
             'UPDATE todos SET title=?,priority=?,status=? WHERE id=?;', [title, priority, status, req.params.id]);
@@ -61,7 +61,7 @@ app.delete('/todos/:id', async (req, res) => {
 ['SIGINT', 'SIGTERM', 'SIGHUP'].forEach(signal => {
     process.on(signal, async () => {
         console.log(`\n${signal}を受信。アプリケーションの終了処理中...`);
-        closePool();
+        await closePool();
         process.exit();
     });
 });
